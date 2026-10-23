@@ -1,0 +1,41 @@
+name: Build Android APK (Kotlin DSL)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17' # หากใช้เวอร์ชันใหม่กว่า ให้เปลี่ยนเป็น '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # คำสั่งนี้จะ build โปรเจกต์ที่ใช้ .gradle.kts และโค้ดภาษา Kotlin (.kt) ได้ทันที
+      - name: Build APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScreenLearningRecorder-APK
+          path: app/build/outputs/apk/debug/*.apk
+
